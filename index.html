@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday</title>
+    <link rel="stylesheet" href="./index.css" >
+  <style>
+    body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+    
+    ul {
+        padding: 0;
+        list-style: none;
+        margin: 0;
+    }
+    
+    li {
+        margin-bottom: 10px;
+    }
+    
+    #first {
+        padding: 20px;
+    }
+    
+    .formDiv {
+        margin-bottom: 20px;
+    }
+    
+    .liDiv {
+        border: 2px solid blueviolet;
+        height: auto; /* Allow height to adjust based on content */
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: 1.2rem;
+        box-sizing: border-box;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    button {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: blueviolet;
+        color: white;
+        font-size: 1rem;
+    }
+    
+    button:hover {
+        opacity: 0.8;
+    }
+    
+    @media (min-width: 600px) {
+        .liDiv {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+    
+        .btn-group {
+            margin-top: 0;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        #first {
+            padding: 40px;
+        }
+    
+        .formDiv {
+            margin-bottom: 40px;
+        }
+    
+        .liDiv {
+            font-size: 1.5rem;
+        }
+    
+        button {
+            font-size: 1.2rem;
+        }
+    }
+    
+  </style>
+</head>
+<body>
+    <div id="first">
+        <h1>!!! Welcome to your virtual Remainder !!!</h1>
+        <div class="formDiv">
+            <form action="">
+                <input type="date" name="" id="userInput" >
+                <button id="btn">Add Birthday to list</button>
+            </form>
+        </div>
+    </div>
+
+    <ul id="birthdayList">
+
+    </ul>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const birthdate = document.getElementById('userInput'); // Get the date input element
+            const btn = document.getElementById('btn'); // Get the add button
+            const ul = document.getElementById('birthdayList'); // Get the unordered list
+
+            // Function to calculate days until the given date
+            const calculateDaysUntilDate = (givenDate) => {
+                const currentDate = new Date();
+                const localDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                const timeDiff = Math.abs(givenDate - localDate);
+                return Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Convert time difference to days
+            };
+
+            // Event listener for add button
+            btn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent form submission
+
+                if (birthdate.value === '') {
+                    alert('Please enter a valid date'); // Alert if input is empty
+                } 
+                else {
+                    const li = document.createElement('li'); // Create a new list item
+                    const liDiv = document.createElement('div'); // Create a div for date and buttons
+                    liDiv.className = 'liDiv';
+
+                    let personDetailsDiv=document.createElement('div')
+                    
+                    const dateSpan = document.createElement('span'); // Span to display the date
+                    dateSpan.innerText = birthdate.value;
+
+                    const daysSpan = document.createElement('span'); // Span to display days difference
+                    const givenDate = new Date(birthdate.value);
+                    const daysDiff = calculateDaysUntilDate(givenDate);
+                    if(daysDiff==0){
+                        let celebration=document.createElement('img')
+                        celebration.src='./celebration.png'
+                        celebration.width=100
+                        celebration.height=100
+                        daysSpan.appendChild(celebration)
+                    }
+                    else{
+                        daysSpan.innerText = daysDiff <= 1 ? `${daysDiff} day` : `${daysDiff} days`;
+                    }
+
+                    const btnGroup = document.createElement('div'); // Div for buttons
+                    btnGroup.className = 'btn-group';
+
+                    const deleteBtn = document.createElement('button'); // Delete button
+                    deleteBtn.innerText = 'Delete';
+                    deleteBtn.addEventListener('click', () => {
+                        ul.removeChild(li); // Remove list item on delete
+                    });
+
+                    const editBtn = document.createElement('button'); // Edit button
+                    editBtn.innerText = 'Edit';
+                    editBtn.addEventListener('click', () => {
+                        const input = document.createElement('input'); // Input field for editing date
+                        input.type = 'date';
+                        input.value = birthdate.value;
+
+                        const saveBtn = document.createElement('button'); // Save button
+                        saveBtn.innerText = 'Save';
+                        saveBtn.addEventListener('click', () => {
+                            if (input.value !== '') {
+                                birthdate.value = input.value; // Update date value
+                                dateSpan.innerText = input.value; // Update displayed date
+                                const newGivenDate = new Date(input.value);
+                                const newDaysDiff = calculateDaysUntilDate(newGivenDate); // Recalculate days difference
+                                daysSpan.innerText = (newDaysDiff <= 1) ? `${newDaysDiff} day` : `${newDaysDiff} days`;
+                                liDiv.replaceChild(dateSpan, input); // Replace input with updated date span
+                                btnGroup.replaceChild(editBtn, saveBtn); // Replace save button with edit button
+                            } 
+                            else {
+                                alert('Please enter a valid date'); // Alert if input is empty
+                            }
+                        });
+
+                        liDiv.replaceChild(input, dateSpan); // Replace date span with input field
+                        btnGroup.replaceChild(saveBtn, editBtn); // Replace edit button with save button
+                    });
+
+                    btnGroup.appendChild(editBtn); // Append edit button to button group
+                    btnGroup.appendChild(deleteBtn); // Append delete button to button group
+
+                    liDiv.appendChild(dateSpan); // Append date span to div
+                    liDiv.appendChild(btnGroup); // Append button group to div
+                    liDiv.appendChild(daysSpan); // Append days span to list item
+
+                    li.appendChild(liDiv); // Append div to list item
+                    ul.appendChild(li); // Append list item to unordered list
+                }
+            });
+        });
+    </script>
+    <!-- <script>
+
+        var birthdate=document.getElementById('userInput')
+        var btn=document.getElementById('btn')
+      
+        ul=document.getElementById('birthdayList')
+        
+
+        
+        btn.addEventListener('click', (e)=>{
+            e.preventDefault()
+            if(birthdate.value==''){
+                alert('Please enter a valid date')
+            }
+            else{
+                let li=document.createElement('li')
+                
+                liDiv=document.createElement('div')
+                liDiv.innerText=birthdate.value
+                liDiv.className='liDiv'
+                
+                liDivBtn=document.createElement('button')
+                liDivBtn.innerText='Delete'
+                
+
+                liDivBtn.addEventListener('click',()=>{
+                    ul.removeChild(li)
+                })
+
+                
+               let givenDate=new Date(birthdate.value)
+                
+                //date 
+                let d =new Date()
+                let month= ( d.getMonth()+1)>10?( d.getMonth()+1):String( d.getMonth()+1).padStart(2,'0')
+                localDate=d.getFullYear()+'-'+month +'-'+d.getDate()
+                localDateObj=new Date(localDate)
+
+                let time= Math.abs(givenDate- localDateObj)
+                let day=Math.ceil(time/ (1000*60*60*24))
+                
+                //date part closing 
+                let days=document.createElement('span')
+                days.innerText= (day<=1)?(day+' day'): (day+' days')
+
+
+                liDiv.appendChild(liDivBtn)
+                li.appendChild(liDiv)
+                liDiv.appendChild(days)
+                ul.appendChild(li)
+            }
+          
+        })
+    </script> -->
+    
+</body>
+</html>
